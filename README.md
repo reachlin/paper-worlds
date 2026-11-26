@@ -12,7 +12,7 @@ the location contract, the walkable map engine, the QA and deploy flow.
 | world | repo | register |
 |---|---|---|
 | Paper West Lake · 纸上西湖 | `paper-westlake` | classical Chinese garden, water-centred, 1:4 |
-| Paper Central Park | `paper-nyc` | modern city grid, buildings and skyline, 1:2 |
+| Paper Central Park | `paper-worlds-demo/nyc` | modern city grid, buildings and skyline, 1:2 |
 
 Both are live: `paper-westlake.eicp.io` · `paper-nyc.eicp.io`
 

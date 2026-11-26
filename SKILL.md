@@ -18,7 +18,7 @@ pipeline that turns OSM + open-data downloads into a walkable map, a location-ag
 a repeatable QA/deploy flow. Two worlds prove the pattern, one in each register:
 
 - **Paper West Lake** (classical garden): `~/dev/private/paper-westlake` — the reference implementation
-- **Paper Central Park** (modern city): `~/dev/private/paper-nyc` — the second proof, with buildings,
+- **Paper Central Park** (modern city): `~/dev/private/paper-worlds-demo/nyc` — the second proof, with buildings,
   a skyline wall, floating name tags and story panels
 
 When the target resembles one of them, copy its content modules as the starting pattern; when it
@@ -164,4 +164,4 @@ three.js (MIT). Attribution: the page credits OSM (ODbL) and any other data sour
 | repo | register | what to copy from it |
 |---|---|---|
 | `~/dev/private/paper-westlake` | classical garden, water-centred, 1:4 scale | garden vegetation, a raised landmark assembly, the stele/sign pattern |
-| `~/dev/private/paper-nyc` | modern city, grid + buildings, 1:2 scale | city fabric + skyline cards, story tags, the NYC extraction notes |
+| `~/dev/private/paper-worlds-demo/nyc` | modern city, grid + buildings, 1:2 scale | city fabric + skyline cards, story tags, the NYC extraction notes |
