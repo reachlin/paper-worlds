@@ -1,14 +1,18 @@
-// world/cat.js — the calico cat: the world's companion, paper-trails style.
+// templates/world/cat.js — the default player: a calico cat, paper-trails style.
 //
-// The manner is papertrails' critters: one side-view card (never front/back), walking = a two-pose
-// trot — legs gathered, legs spread — swapped no faster than paper can flap, the card yawed to the
-// way it walks. With generated art (assets/cat-stand.png, cat-walk-a.png, cat-walk-b.png; the
-// prompt and the splitter live in the skill) the three poses print from the keyed sheet; without
-// art the same cat is drawn here, its legs as four little hinged cards on the diagonal.
+// Most users have no hero art, so the world ships with a cat. The manner is papertrails'
+// critters: one side-view card, always side-on to the lens (never edge-on), walking = a two-pose
+// trot — legs gathered, legs spread — swapped no faster than paper can flap, and a left/right walk
+// mirrors the card like a paper flip (the harness's `turn: 'flip'` does it for the player;
+// followCat does it for a companion).
 //
-// buildCat(H, art) returns the popup node and the stride hook; followCat(H, handle, stride) makes
-// it trail the hero a step behind, trotting to keep up and leaping back to his heels after a
-// chart-travel. A cat keeping pace with a walking man is a trot — the two poses read it as one.
+// The pose frames ship in templates/assets/cat-*.png — papertrails' cat_calico (sit, walk_a,
+// walk_b), (c) 2026 Shikhar, MIT. Without them the same cat is drawn here as a layered paper
+// construction of simple cards. A user's own figure (assets/hero*.png) takes over automatically.
+//
+// buildCat(H, art) returns the popup node and the stride hook. As the player:
+//   H.setHero(hero, { turn: 'flip', stride: cat.stride })   // flip = always side-on, mirrored
+// As a companion, followCat(H, handle, { stride }) makes it trail the hero a step behind.
 
 import * as P2 from 'papercraft/lib/paperkit-2d.js';
 import { makeCard } from 'papercraft/lib/paperkit-3d.js';
@@ -17,58 +21,19 @@ const CAT = {
   cream: '#f3e8d2', orange: '#c9803a', ink: '#3a352f', nose: '#d98a7a', eye: '#5a7a4a',
 };
 
-// the die-cut outline: a plump side view facing +x, tail behind, ears up — one connected piece
-function catOutline() {
-  return [
-    [-0.78, 0.12], [-0.95, 0.4], [-1.02, 0.68], [-0.8, 0.78], [-0.62, 0.5],   // the tail, curving up
-    [-0.7, 0.5], [-0.62, 0.82], [-0.15, 0.95], [0.3, 0.86], [0.62, 0.55],    // the back
-    [0.62, 0.35], [0.86, 0.62], [1.0, 0.5], [1.04, 0.66], [1.18, 0.52],      // the ears
-    [1.14, 0.3], [0.82, 0.2], [0.55, 0.12], [-0.78, 0.12],                    // the chest and belly
-  ];
-}
-
-function paintCatBody(P) {
-  P.draw((g) => {
-    g.fillStyle = CAT.cream;
-    g.fillRect(-1.3, -0.1, 2.6, 1.25);
-    // the calico's patches: orange and ink on cream
-    g.fillStyle = CAT.orange;
-    g.beginPath(); g.ellipse(0.12, 0.72, 0.26, 0.16, 0.2, 0, Math.PI * 2); g.fill();
-    g.beginPath(); g.ellipse(-0.52, 0.5, 0.18, 0.12, 0.4, 0, Math.PI * 2); g.fill();
-    g.fillStyle = CAT.ink;
-    g.beginPath(); g.ellipse(-0.88, 0.68, 0.16, 0.1, -0.4, 0, Math.PI * 2); g.fill();   // the tail tip
-    g.beginPath(); g.ellipse(0.92, 0.34, 0.13, 0.1, 0.3, 0, Math.PI * 2); g.fill();     // the head patch
-    // the face: eye, nose, whiskers
-    g.fillStyle = CAT.eye;
-    g.beginPath(); g.arc(0.95, 0.44, 0.05, 0, Math.PI * 2); g.fill();
-    g.fillStyle = CAT.nose;
-    g.beginPath(); g.arc(1.13, 0.28, 0.04, 0, Math.PI * 2); g.fill();
-    g.strokeStyle = 'rgba(58,53,47,0.6)';
-    g.lineWidth = 0.018;
-    g.beginPath();
-    g.moveTo(1.06, 0.28); g.lineTo(1.18, 0.33);
-    g.moveTo(1.06, 0.28); g.lineTo(1.18, 0.23);
-    g.stroke();
-    // a shadowed band under the belly
-    g.fillStyle = 'rgba(58,53,47,0.14)';
-    g.fillRect(-0.8, 0.1, 1.6, 0.1);
-  });
-}
-
-function paintLeg(P) {
-  P.draw((g) => {
-    g.fillStyle = CAT.cream;
-    g.fillRect(-0.09, -0.08, 0.18, 0.62);
-    g.fillStyle = 'rgba(58,53,47,0.3)';
-    g.fillRect(-0.09, 0.44, 0.18, 0.1);
-  });
-}
-
-// the trot: each pose swings the four legs on the diagonal — gathered, then reaching
+// the trot: contact (legs wide), passing (gathered), opposite contact, passing again
 const TROT = {
-  A: [0.34, -0.34, -0.34, 0.34],
-  B: [-0.34, 0.34, 0.34, -0.34],
+  A: [0.42, -0.42, -0.42, 0.42],
+  B: [-0.14, 0.14, 0.14, -0.14],
+  C: [-0.42, 0.42, 0.42, -0.42],
 };
+const STRIDE_HZ = 0.9;             // pose swaps per second at the harness's walk speed (a trot)
+
+function poseAt(walked, gait) {
+  if (gait <= 0.08) return 'stand';
+  const p = ((walked * STRIDE_HZ * 2) % 4 + 4) % 4;      // 0..4 through the cycle
+  return p < 1 ? 'A' : p < 2 ? 'B' : p < 3 ? 'C' : 'B';
+}
 
 /**
  * buildCat(H, art = null) -> { node, stride }. art: { stand, walkA, walkB } images (all three
@@ -78,38 +43,125 @@ const TROT = {
 export function buildCat(H, art = null) {
   const g = new H.THREE.Group();
   const common = { paper: H.paper, thickness: 0.05, edgeWidth: 0.04, back: 'mirror', folds: [] };
-  const outline = catOutline();
 
   if (art) {
+    // the shipped frames: one die-cut card per pose, swapped on the trot
     const mk = (img, name) => {
       const fit = Math.min(2.0 / img.width, 1.15 / img.height);
       const iw = img.width * fit, ih = img.height * fit;
-      const piece = P2Piece(img, iw, ih, name);
+      const piece = P2.drawnPiece((gg) => {
+        gg.save();
+        gg.imageSmoothingQuality = 'high';
+        gg.translate(-iw / 2, ih);
+        gg.scale(1, -1);
+        gg.drawImage(img, 0, 0, iw, ih);
+        gg.restore();
+      }, { w: iw, h: ih, res: 128, simplify: 0.5, name });
       const card = makeCard(piece[0], { ...common, pxPerUnit: 128, seed: 901, paint: piece[1] });
       card.visible = false;
       g.add(card);
       return card;
     };
     const stand = mk(art.stand, 'cat-stand');
-    const walkA = mk(art.walkA, 'cat-walk-a');
-    const walkB = mk(art.walkB, 'cat-walk-b');
+    const A = mk(art.walkA, 'cat-walk-a');
+    const B = mk(art.walkB, 'cat-walk-b');
     stand.visible = true;
     let last = stand;
     return {
       node: g,
       stride(walked, gait) {
-        const pose = gait > 0.08 ? (Math.sin(walked * 5.2) > 0 ? walkA : walkB) : stand;
+        const pose = gait > 0.08 ? (Math.sin(walked * STRIDE_HZ) > 0 ? A : B) : stand;
         if (pose !== last) { last.visible = false; pose.visible = true; last = pose; }
       },
     };
   }
 
-  // the drawn cat: the body card, four hinged legs on the diagonal
-  g.add(makeCard(outline, { ...common, paint: paintCatBody }));
+  // ---- the drawn cat: a layered paper construction, each card one safe simple shape ----------------
+  const circle = (cx, cy, r, n = 20) => {
+    const pts = [];
+    for (let k = 0; k < n; k++) {
+      const a = Math.PI * 2 * k / n;
+      pts.push([cx + Math.cos(a) * r, cy + Math.sin(a) * r]);
+    }
+    return pts;
+  };
+  const ellipse = (cx, cy, rx, ry, n = 22) => {
+    const pts = [];
+    for (let k = 0; k < n; k++) {
+      const a = Math.PI * 2 * k / n;
+      pts.push([cx + Math.cos(a) * rx, cy + Math.sin(a) * ry]);
+    }
+    return pts;
+  };
+  const paintHead = (P) => P.draw((gg) => {
+    gg.fillStyle = CAT.cream;
+    gg.fillRect(-0.5, 0.05, 1.0, 0.95);
+    gg.fillStyle = CAT.ink;
+    gg.beginPath(); gg.ellipse(0.06, 0.78, 0.16, 0.1, 0.2, 0, Math.PI * 2); gg.fill();
+    gg.fillStyle = CAT.eye;
+    gg.beginPath(); gg.arc(0.18, 0.5, 0.07, 0, Math.PI * 2); gg.fill();
+    gg.fillStyle = '#2c3a26';
+    gg.beginPath(); gg.arc(0.18, 0.5, 0.03, 0, Math.PI * 2); gg.fill();
+    gg.fillStyle = CAT.nose;
+    gg.beginPath(); gg.arc(0.36, 0.38, 0.035, 0, Math.PI * 2); gg.fill();
+    gg.strokeStyle = 'rgba(58,53,47,0.55)';
+    gg.lineWidth = 0.015;
+    gg.beginPath();
+    gg.moveTo(0.34, 0.4); gg.lineTo(0.34, 0.33);
+    gg.moveTo(0.31, 0.36); gg.quadraticCurveTo(0.2, 0.3, 0.12, 0.3);
+    gg.moveTo(0.22, 0.34); gg.lineTo(0.44, 0.36);
+    gg.moveTo(0.22, 0.28); gg.lineTo(0.44, 0.27);
+    gg.stroke();
+  });
+  const paintEar = (P) => P.draw((gg) => {
+    gg.fillStyle = CAT.cream;
+    gg.fillRect(-0.3, -0.05, 0.6, 0.5);
+    gg.fillStyle = 'rgba(217,138,122,0.75)';
+    gg.beginPath();
+    gg.moveTo(0.02, 0.1); gg.lineTo(-0.08, 0.3); gg.lineTo(0.12, 0.22);
+    gg.closePath(); gg.fill();
+  });
+  const paintBody = (P) => P.draw((gg) => {
+    gg.fillStyle = CAT.cream;
+    gg.fillRect(-0.6, -0.45, 1.2, 0.9);
+    gg.fillStyle = CAT.orange;
+    gg.beginPath(); gg.ellipse(-0.1, 0.12, 0.2, 0.11, 0.3, 0, Math.PI * 2); gg.fill();
+    gg.fillStyle = CAT.ink;
+    gg.beginPath(); gg.ellipse(-0.34, 0.02, 0.12, 0.08, -0.4, 0, Math.PI * 2); gg.fill();
+  });
+  const paintTail = (P) => P.draw((gg) => {
+    gg.fillStyle = CAT.cream;
+    gg.fillRect(-0.1, -0.05, 0.2, 0.6);
+    gg.fillStyle = CAT.ink;
+    gg.fillRect(-0.1, 0.42, 0.2, 0.13);
+  });
+  const paintLeg = (P) => P.draw((gg) => {
+    gg.fillStyle = CAT.cream;
+    gg.fillRect(-0.09, -0.08, 0.18, 0.62);
+    gg.fillStyle = 'rgba(58,53,47,0.3)';
+    gg.fillRect(-0.09, 0.44, 0.18, 0.1);
+  });
+
+  const headCard = makeCard(circle(0.42, 0.52, 0.4), { ...common, paint: paintHead });
+  headCard.position.z = 0.03;
+  g.add(headCard);
+  for (const [lx, rz] of [[0.2, 0.14], [0.56, -0.14]]) {
+    const ear = makeCard([[-0.16, 0], [0.04, 0.34], [0.18, 0]], { ...common, thickness: 0.04, paint: paintEar });
+    ear.position.set(lx, 0.84, 0.02);
+    ear.rotation.z = rz;
+    g.add(ear);
+  }
+  const bodyCard = makeCard(ellipse(-0.22, 0.26, 0.46, 0.3), { ...common, paint: paintBody });
+  bodyCard.position.z = -0.03;
+  g.add(bodyCard);
+  const tailCard = makeCard([[-0.06, 0], [0.06, 0], [0.05, 0.52], [-0.05, 0.52]], { ...common, thickness: 0.04, paint: paintTail });
+  tailCard.position.set(-0.62, 0.2, -0.04);
+  tailCard.rotation.z = -0.5;
+  g.add(tailCard);
   const legs = [];
-  for (const [lx] of [[-0.52], [0.18], [-0.38], [0.32]]) {
-    const leg = makeCard([[-0.09, 0], [0.09, 0], [0.09, -0.54], [-0.09, -0.54]], { ...common, thickness: 0.04, paint: paintLeg });
-    leg.position.set(lx, 0.14, 0.015);
+  for (const [lx] of [[-0.3], [0.28], [-0.14], [0.42]]) {
+    const leg = makeCard([[-0.09, 0], [0.09, 0], [0.09, -0.52], [-0.09, -0.52]], { ...common, thickness: 0.04, paint: paintLeg });
+    leg.position.set(lx, 0.12, 0.01);
     g.add(leg);
     legs.push(leg);
   }
@@ -117,22 +169,26 @@ export function buildCat(H, art = null) {
     node: g,
     stride(walked, gait) {
       const sw = Math.max(0, Math.min(1, gait)) * 0.4;
-      const side = Math.sin(walked * 5.2) > 0 ? TROT.A : TROT.B;
+      const side = poseAt(walked, gait) === 'A' ? TROT.A : poseAt(walked, gait) === 'B' ? TROT.B : TROT.C;
       legs.forEach((leg, i) => { leg.rotation.x = side[i] * sw; });
     },
   };
 }
 
 /**
- * The companion: trail the hero a step behind, trot to keep up, leap back to his heels after a
- * chart-travel. The cat stays where the hero has walked, so it is always on the same ground.
+ * The companion mode: trail the hero a step behind, trot to keep up, leap back to his heels after
+ * a chart-travel. The cat stays side-on to the lens: a left/right walk mirrors the card like a
+ * paper flip, it never yaws edge-on.
  */
 export function followCat(H, cat, { behind = 2.6, snap = 6, stride = null } = {}) {
   let walked = 0;
+  let facing = 1;
   const settle = () => {
     const hp = H.hero.group.position;
     const heading = H.hero.group.rotation.y;
     cat.group.position.set(hp.x - Math.sin(heading) * behind, 0.02, hp.z - Math.cos(heading) * behind);
+    cat.pivot.scale.x = 1;
+    facing = 1;
     walked = 0;
   };
   H.onStep((time, dt) => {
@@ -147,23 +203,14 @@ export function followCat(H, cat, { behind = 2.6, snap = 6, stride = null } = {}
       const k = Math.min(1, (d > snap ? 0.85 : 0.05 + d * 0.12) * dt * 8);
       p.x += dx * k; p.z += dz * k;
       walked += d * k;
-      cat.group.rotation.y = Math.atan2(dx, dz);
+      if (Math.abs(dx) > Math.abs(dz) * 0.4 && Math.sign(dx) !== facing && Math.abs(dx) > 0.04) {
+        facing = Math.sign(dx);
+        cat.pivot.scale.x = facing;
+      }
     }
     stride?.(walked, d > 0.1 ? 1 : 0);
   });
   H.onRestart(settle);
   settle();
   return cat;
-}
-
-// one image printed into the pose card (y-up piece, image y-down)
-function P2Piece(img, iw, ih, name) {
-  return P2.drawnPiece((gg) => {
-    gg.save();
-    gg.imageSmoothingQuality = 'high';
-    gg.translate(-iw / 2, ih);
-    gg.scale(1, -1);
-    gg.drawImage(img, 0, 0, iw, ih);
-    gg.restore();
-  }, { w: iw, h: ih, res: 128, simplify: 0.5, name });
 }

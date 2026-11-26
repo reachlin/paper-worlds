@@ -1,10 +1,11 @@
 # Hero art — the default player and your own figure
 
-The world always has a player. Out of the box it is the **drawn calico cat** (world/cat.js):
-a side-view paper card that trots with a two-pose walk — legs gathered, legs reached — swapped no
-faster than paper can flap, the way papertrails animates its critters. Two ways to replace it:
+The world always has a player. Out of the box it is the **calico cat** (world/cat.js): one
+side-view paper card, always side-on to the lens, trotting on a two-pose walk and mirroring like a
+paper flip when the direction changes. Its frames ship in `templates/assets/cat-*.png` —
+papertrails' cat_calico poses (sit, walk_a, walk_b), (c) 2026 Shikhar, MIT. Two ways to replace it:
 
-## 1. The calico cat, painted (three-pose sheet)
+## 1. The calico cat, repainted (three-pose sheet)
 
 Generate ONE wide image, three poses side by side on a flat magenta plate, all facing RIGHT, then:
 

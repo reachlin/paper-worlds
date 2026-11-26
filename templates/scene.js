@@ -88,6 +88,12 @@ const HERO_SIDE = './assets/hero-side.png';
 const HERO_W = HERO.width, HERO_H = HERO.height;
 const loadImage = (src) => new Promise((ok) => { const im = new Image(); im.onload = () => ok(im); im.onerror = () => ok(null); im.src = src; });
 const [heroImage, heroBack, heroSide] = await Promise.all([loadImage(HERO_FILE), loadImage(HERO_BACK), loadImage(HERO_SIDE)]);
+// the default player's frames (papertrails' cat_calico, MIT — see assets/cat-README.md);
+// without them the drawn cat stands in
+const [catStand, catWalkA, catWalkB] = await Promise.all([
+  loadImage('./assets/cat-stand.png'), loadImage('./assets/cat-walk-a.png'), loadImage('./assets/cat-walk-b.png'),
+]);
+const catArt = (catStand && catWalkA && catWalkB) ? { stand: catStand, walkA: catWalkA, walkB: catWalkB } : null;
 
 // the drawn fallback (replace with the place's own person): one flat card that flips to the lens
 // the default player is the calico cat (world/cat.js); a user's own figure ships as the three
@@ -166,9 +172,9 @@ const standee = () => {
 };
 const placeHero = (x, z) => {
   const rig = heroImage ? standee() : null;
-  const cat = rig ? null : buildCat(H, null);
+  const cat = rig ? null : buildCat(H, catArt);
   const hero = popup(null, null, { node: rig ? rig.node : cat.node, height: rig ? 2.9 : 1.15, x, z, sway: 0.15, scale: rig ? HERO.scale : 1, order: 0 });
-  H.setHero(hero, { turn: 'yaw', stride: rig ? null : cat.stride });
+  H.setHero(hero, { turn: rig ? 'yaw' : 'flip', stride: rig ? null : cat.stride });   // flip: the cat stays side-on, mirrored by direction
   if (rig && rig.sideCard) {
     H.onStep(() => {
       const vy = H.view.yaw * Math.PI / 180;
