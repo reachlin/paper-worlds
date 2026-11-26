@@ -9,12 +9,10 @@ the location contract, the walkable map engine, the QA and deploy flow.
 
 ## Proven by two worlds
 
-| world | repo | register |
+| world | live | register |
 |---|---|---|
-| Paper West Lake · 纸上西湖 | `paper-worlds-demo/westlake` | classical Chinese garden, water-centred, 1:4 |
-| Paper Central Park | `paper-worlds-demo/nyc` | modern city grid, buildings and skyline, 1:2 |
-
-Both are live: `paper-westlake.eicp.io` · `paper-nyc.eicp.io`
+| Paper West Lake · 纸上西湖 | https://paper-westlake.eicp.io/ | classical Chinese garden, water-centred, 1:4 |
+| Paper Central Park | https://paper-nyc.eicp.io/ | modern city grid, buildings and skyline, 1:2 |
 
 ## Layout
 
@@ -47,11 +45,12 @@ Built on the shoulders of:
 - [**OpenStreetMap contributors**](https://www.openstreetmap.org/copyright) (ODbL) — the geography:
   roads, water, bridges, coastlines and sites of every world.
 - **NYC Open Data** (Building Footprints, `5zhs-2jue`) — the Central Park skyline's heights.
-- The demo worlds — `paper-worlds-demo/` — which the skill is extracted from and proven by.
+- The demo worlds — [paper-westlake.eicp.io](https://paper-westlake.eicp.io/) and
+  [paper-nyc.eicp.io](https://paper-nyc.eicp.io/) — which the skill is extracted from and proven by.
 
 ## Licence
 
 - `engine/` — [xikhar/papercraft](https://github.com/xikhar/papercraft) (MIT) and three.js (MIT)
 - `scripts/`, `templates/`, `references/`, `SKILL.md` — MIT, with attribution appreciated
-- The demo worlds are separate repositories; map data © OpenStreetMap contributors (ODbL) and the
+- The demo worlds live outside this repository; map data © OpenStreetMap contributors (ODbL) and the
   cities' open-data portals, as credited on their pages
