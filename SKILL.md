@@ -98,15 +98,16 @@ Gate: `?loc=<id>` serves; the spawn view renders; the hero walks.
 
 One module per layer, all placed from the location's data — never hard-coded world coordinates:
 
-- **Landmarks** — mini assemblies of printed cards (base, walls, a roof, a name tag). The demo
-  repos show the pattern: an arcade wall with arches, a castle C-fold, a terrace with a fountain.
+- **Landmarks** — nature forms only: rock outcrops, a fountain basin, a viewing terrace. The demo
+  repos show the pattern (a terrace with a fountain, garden features). Nothing architectural —
+  see the no-buildings rule below.
 - **Vegetation** — one die-cut silhouette per species, prints shared across the planting
   (`H.printed`), placed along real ways (an allée on a named road) and inside land polygons.
-- **No generic building cards** — the default is none. Extruding raw `building=*` footprints reads
-  as crude boxes or floating triangles; the Mont Saint-Michel test learned this the hard way and
-  dropped its whole buildings layer. Famous buildings and sites get the floating tag + story
-  instead. Building cards are only for authored city fabric — long block fronts with stepped
-  rooflines facing the lens (the NYC pattern) — never one card per footprint.
+- **No buildings** — none, in any form. This was settled by review: extruded footprint cards,
+  photo die-cuts, and painted card assemblies all read badly beside the player. These worlds show
+  nature scenes (water, land, vegetation, bridges); famous buildings and sites stand as the
+  floating tag + story instead — the tag carries the place. If the site's identity IS a building,
+  the story panel says it.
 - **Sites** — the floating name tags + story panels already ship in `world/sites.js`: fill
   `STORIES` with the place's own lines, and the chart hexagons follow.
 - **The player** — out of the box the world is walked by a calico cat (world/cat.js): one
@@ -183,5 +184,4 @@ three.js (MIT). Attribution: the page credits OSM (ODbL) and any other data sour
 | repo | register | what to copy from it |
 |---|---|---|
 | `~/dev/private/paper-worlds-demo/westlake` | classical garden, water-centred, 1:4 scale | garden vegetation, a raised landmark assembly, the stele/sign pattern |
-| `~/dev/private/paper-worlds-demo/nyc` | modern city, grid + buildings, 1:2 scale | city fabric + skyline cards, story tags, the NYC extraction notes |
-| `~/dev/private/paper-worlds-demo/MtStMichel` | coastal island, causeway, 1:1 | the coastal pipeline (tidal flats, synthetic sea), tags-only famous sites — no building cards |
+| `~/dev/private/paper-worlds-demo/nyc` | modern city, grid + buildings, 1:2 scale | story tags, the NYC extraction notes, street fabric |

@@ -7,15 +7,14 @@ Built on [xikhar/papercraft](https://github.com/xikhar/papercraft) (MIT) — the
 light and lens are theirs. This skill adds the real-geography layer: the OSM/open-data pipeline,
 the location contract, the walkable map engine, the QA and deploy flow.
 
-## Proven by three worlds
+## Proven by two worlds
 
 | world | repo | register |
 |---|---|---|
 | Paper West Lake · 纸上西湖 | `paper-worlds-demo/westlake` | classical Chinese garden, water-centred, 1:4 |
 | Paper Central Park | `paper-worlds-demo/nyc` | modern city grid, buildings and skyline, 1:2 |
-| Paper Mont Saint-Michel | `paper-worlds-demo/MtStMichel` | coastal island and causeway, tags-only famous sites |
 
-Two are live: `paper-westlake.eicp.io` · `paper-nyc.eicp.io`
+Both are live: `paper-westlake.eicp.io` · `paper-nyc.eicp.io`
 
 ## Layout
 
