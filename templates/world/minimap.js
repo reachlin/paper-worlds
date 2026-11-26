@@ -49,6 +49,8 @@ function nearestLand(H, x, z, maxR) {
   return best;
 }
 
+import { UNITS_PER_METER } from './locations.js';
+
 export function createMinimap(H, loc, sheet, sites = []) {
   const b = loc.bounds, w = b.x1 - b.x0, d = b.z1 - b.z0;
 
@@ -71,6 +73,26 @@ export function createMinimap(H, loc, sheet, sites = []) {
   document.head.appendChild(style);
 
   // the printed chart: the page's own sheet, its edge held by a printed keyline and a soft vignette
+  // the live-location readout: where the hero stands, in world units and on the real map —
+  // the debug line under the chart, always on (it is the fastest way to report a bug's spot)
+  const readout = document.createElement('div');
+  readout.style.cssText = 'margin-top:6px;font:600 10px/1.5 ui-monospace,Menlo,monospace;color:' +
+    (loc.label?.ink || '#3f3a32') + ';opacity:.85;text-align:center;letter-spacing:.02em';
+  el.appendChild(readout);
+  const U = UNITS_PER_METER / (loc.mapScale || 1);
+  const crs = loc.raw?.crs;
+  const updateReadout = (p) => {
+    let line = `x ${p.x.toFixed(0)}  z ${p.z.toFixed(0)}`;
+    if (crs) {
+      const lon = crs.lon0 + (-p.x / U) / crs.mPerDegLon;
+      const lat = crs.lat0 + (p.z / U) / crs.mPerDegLat;
+      line += `   |   ${lat.toFixed(5)}°, ${lon.toFixed(5)}°`;
+    }
+    const s = H.walk.surface(p.x, p.z);
+    line += `   |   ${s ? (s.y > 0.15 ? 'deck' : 'land') : 'water'}`;
+    readout.textContent = line;
+  };
+
   const frame = document.createElement('div');
   frame.style.cssText = `position:relative;width:100%;aspect-ratio:${w} / ${d};overflow:hidden;`
     + 'box-shadow:inset 0 0 0 1px rgba(58,41,28,.38), inset 0 0 16px rgba(38,24,10,.14)';
@@ -151,7 +173,7 @@ export function createMinimap(H, loc, sheet, sites = []) {
     e.preventDefault();
     setShown(!shown);
   });
-  H.onStep(() => { if (shown) draw(); });
+  H.onStep(() => { if (shown) { draw(); updateReadout(H.hero.group.position); } });
   H.onRestart(() => draw(true));
 
   // ---- the chart is also a way to travel ---------------------------------------------------------------
@@ -178,5 +200,6 @@ export function createMinimap(H, loc, sheet, sites = []) {
 
   document.body.appendChild(el);
   draw(true);
+  updateReadout(H.hero.group.position);
   return { el, setShown };
 }

@@ -14,7 +14,7 @@ PALETTE    <the location's, in world/locations.js>
 LIGHT      one warm low day key (the harness defaults), cream stock
 LENS       26° fov, pitch ~42, dist ~60, sharp band across the hero
 GROUND     two sheets (world/map.js): the coarse page and a 3x3 detail window following the hero;
-           water blocks the walk, bridge decks carry it, buildings block at their footprints
+           water blocks the walk, bridge decks carry it
 BRIDGES    the real bridge decks (scripts/extract_bridges.py), painted pale; named ones carry a tag
 SITES      the landmark set (scripts/extract_sites.py): a green hexagon on the chart, a floating
            name tag above the spot, a story on click (world/sites.js)
@@ -58,7 +58,7 @@ const gameClick = (pt) => {
   const ray = new H.THREE.Raycaster();
   ray.setFromCamera(ndc, H.camera);
   const hit = siteHits.find((h) => ray.ray.intersectSphere(h.sphere, new H.THREE.Vector3()));
-  if (hit) showStory(hit.name);
+  if (hit) showStory(hit.name, loc.name);
   else closeStory();
 };
 
@@ -193,7 +193,7 @@ settleSites(H, loc.sites);
 siteHits = buildSiteTags(H, loc, loc.sites);
 createMinimap(H, loc, map.sheet, loc.sites);
 
-// ---- 3c. CONTENT: the place's own landmarks, buildings and vegetation go here ------------------------
+// ---- 3c. CONTENT: the place's own landmarks and vegetation go here ------------------------
 // See the example repos for the pattern: one module per content layer (a landmark assembly, the
 // trees, the skyline), each placed from the location's data, never from hard-coded coordinates.
 

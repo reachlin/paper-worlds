@@ -107,11 +107,12 @@ export function buildSiteTags(H, loc, sites) {
 // --------------------------------------------------------------------------------------------------
 let storyEl = null, storyStyle = null;
 
-export function showStory(name) {
+export function showStory(name, locName = null) {
   const story = STORIES[name];
   if (!story) return false;
   if (storyEl) {
     storyEl.querySelector('.pc-title').textContent = name;
+    if (locName) storyEl.querySelector('.pc-kicker').textContent = locName;
     const body = storyEl.querySelector('.pc-body');
     body.innerHTML = '';
     for (const ln of story) {
@@ -153,14 +154,14 @@ export function showStory(name) {
   storyEl.innerHTML = `
     <div class="pc-card">
       <button class="pc-x" type="button" aria-label="Close">×</button>
-      <p class="pc-kicker">Central Park</p>
+      <p class="pc-kicker">Paper World</p>
       <h2 class="pc-title"></h2>
       <div class="pc-body"></div>
     </div>`;
   storyEl.querySelector('.pc-x').addEventListener('click', (e) => { e.stopPropagation(); closeStory(); });
   addEventListener('keydown', (e) => { if (e.key === 'Escape') closeStory(); });
   document.body.appendChild(storyEl);
-  return showStory(name);
+  return showStory(name, locName);
 }
 
 export function closeStory() {

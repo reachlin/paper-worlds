@@ -25,7 +25,6 @@ export const LOCATIONS = {
     bridges: 'world/maps/centralpark-bridges.json',   // real OSM bridge decks over the park water (tools/extract_bridges.py)
     sites: 'world/maps/centralpark-sites.json',       // the landmark set: Bethesda, Bow Bridge, Belvedere, ... (tools/extract_sites.py)
     roads: 'world/maps/centralpark-roads.json',       // the OSM street network (tools/extract_roads.py)
-    buildings: 'world/maps/centralpark-buildings.json', // NYC Open Data footprints (tools/extract_buildings.py)
     ground: '#efe8d8', stock: '#f7f0e2',
     // the palette is pre-compensated: the cream sheet multiplies into every detail tile, which pulls
     // a muted blue toward sage — so the water carries more blue than it prints
@@ -37,9 +36,6 @@ export const LOCATIONS = {
     // the streets: asphalt ribbons with kerbs; main roads carry a dashed centre line
     road: { main: '#b9b3a7', mainEdge: '#8b8378', small: '#d3cdc1', smallEdge: '#a89f90',
             mark: 'rgba(247,240,226,0.55)' },
-    // the city fabric: the ring of blocks printed on the page (the 3D wall is world/buildings.js)
-    building: { brick: '#a66a52', limestone: '#d8cdb8', glass: '#9fb4bd', roof: '#8f8a80',
-                edge: 'rgba(74,68,60,0.45)' },
     plaza: '#d9cfba',                                               // the terrace paving wash
     label: { fill: '#f7f0e2', ink: '#3f3a32', line: '#8b8378' },    // the name tags: cream paper, grey-brown ink
     view: { pitch: 42, dist: 60 },
@@ -61,7 +57,6 @@ export async function loadLocation(id = locationId()) {
   const deck = meta.bridges ? await (await fetch(meta.bridges)).json() : { bridges: [] };
   const siteDoc = meta.sites ? await (await fetch(meta.sites)).json() : { sites: [] };
   const roadDoc = meta.roads ? await (await fetch(meta.roads)).json() : { roads: [] };
-  const bldDoc = meta.buildings ? await (await fetch(meta.buildings)).json() : { buildings: [] };
   const f = meta.mapScale || 1;     // the geography's compression against the hero
   const U = UNITS_PER_METER / f;
   const X = (x) => -x * U;          // east -> -x
@@ -76,17 +71,12 @@ export async function loadLocation(id = locationId()) {
     return { x0, x1, z0, z1 };
   };
   const w = raw.world;
-  const buildings = (bldDoc.buildings || []).map((b, i) => {
-    const outer = ring(b.outer);
-    return { n: i, height: b.height * U, outer, bb: bb(outer) };
-  });
   return {
     ...meta, raw,
     bounds: { x0: X(w.x1), x1: X(w.x0), z0: Z(w.y0), z1: Z(w.y1) },
     inset: (meta.inset ?? 0) / f,   // the page shrank with the geography; keep the edge margin in proportion
     water: raw.water.map((pg) => ({ outer: ring(pg.outer), holes: pg.holes.map(ring) })),
     land: (raw.land || []).map((pg) => ({ kind: pg.kind, outer: ring(pg.outer), holes: pg.holes.map(ring), bb: null })),
-    buildings,
     start: { x: X(raw.start.x), z: Z(raw.start.y) },
     // bridge decks: the OSM way in world units, its width in world units, a bbox widened by half the
     // width (map.js culls and tests strips with it — the walk may step anywhere on the deck)

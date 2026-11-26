@@ -7,14 +7,15 @@ Built on [xikhar/papercraft](https://github.com/xikhar/papercraft) (MIT) — the
 light and lens are theirs. This skill adds the real-geography layer: the OSM/open-data pipeline,
 the location contract, the walkable map engine, the QA and deploy flow.
 
-## Proven by two worlds
+## Proven by three worlds
 
 | world | repo | register |
 |---|---|---|
 | Paper West Lake · 纸上西湖 | `paper-worlds-demo/westlake` | classical Chinese garden, water-centred, 1:4 |
 | Paper Central Park | `paper-worlds-demo/nyc` | modern city grid, buildings and skyline, 1:2 |
+| Paper Mont Saint-Michel | `paper-worlds-demo/MtStMichel` | coastal island and causeway, tags-only famous sites |
 
-Both are live: `paper-westlake.eicp.io` · `paper-nyc.eicp.io`
+Two are live: `paper-westlake.eicp.io` · `paper-nyc.eicp.io`
 
 ## Layout
 
@@ -34,6 +35,20 @@ Install as a Claude Code skill (symlink or copy into `~/.claude/skills/`), then 
 > paper 西湖
 
 or use the pipeline directly — read `SKILL.md` and follow the phases.
+
+## Credits
+
+Built on the shoulders of:
+
+- [**xikhar/papercraft**](https://github.com/xikhar/papercraft) (MIT) — the engine: the paper
+  look, the print/hinge system, the light and the lens. `engine/` is theirs, kept as shipped.
+- [**three.js**](https://threejs.org) (MIT) — the WebGL renderer (`engine/vendor/`).
+- **papertrails** (part of xikhar/papercraft, © Shikhar, MIT) — the calico cat of the default
+  player: its pose frames ship as `templates/assets/cat-*.png`.
+- [**OpenStreetMap contributors**](https://www.openstreetmap.org/copyright) (ODbL) — the geography:
+  roads, water, bridges, coastlines and sites of every world.
+- **NYC Open Data** (Building Footprints, `5zhs-2jue`) — the Central Park skyline's heights.
+- The demo worlds — `paper-worlds-demo/` — which the skill is extracted from and proven by.
 
 ## Licence
 

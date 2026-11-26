@@ -47,11 +47,13 @@ Gate: the spec answers — what stands, what is painted, where the hero starts, 
 
 Raw downloads live in `data/` and are **never imported by the page** — only passed as file paths to
 the scripts. Overpass first (`scripts/fetch_osm.py --bbox=W,S,E,N --out data/osm --layers ...`);
-retry with backoff, then fall back to Geofabrik + osmium and record it. Buildings: NYC uses the
-Open Data footprints (`scripts/extract_buildings.py`, Socrata `5zhs-2jue`, height_roof); anywhere
-else use Overpass `building=*` (the fetch tool has the layer). Write a `SOURCE.md` per `data/`
-subdirectory: source URL, download date, licence. Palette reference images go in `docs/` notes,
-never in the published site.
+retry with backoff, then fall back to Geofabrik + osmium and record it. Buildings are **optional** —
+most worlds paint no building cards (see Phase 5), so skip the layer unless the brief commits to
+authored city fabric. When used: NYC takes the Open Data footprints
+(`scripts/extract_buildings.py`, Socrata `5zhs-2jue`, height_roof); anywhere else use Overpass
+`building=*` (the fetch tool has the layer). Write a `SOURCE.md` per `data/` subdirectory: source
+URL, download date, licence. Palette reference images go in `docs/` notes, never in the published
+site.
 
 Gate: every layer has raw JSON + source note + timestamp.
 
@@ -87,8 +89,8 @@ Copy the engine into the new world's folder (the world is self-contained): `engi
 `engine/papercraft/`, `engine/vendor/`. Then copy `templates/index.html`, `templates/scene.js` and
 `templates/world/*`. Register the location in `world/locations.js` (`?loc=<id>` must load with no
 other edits) and set the palette there — it is pre-compensated for the cream paper multiply. Walk
-rules come from `world/map.js` automatically: water blocks, bridge decks carry, buildings block,
-the page edge walls.
+rules come from `world/map.js` automatically: water blocks, bridge decks carry, the page edge
+walls. The templates ship without a buildings layer; adding one also adds its blocking footprints.
 
 Gate: `?loc=<id>` serves; the spawn view renders; the hero walks.
 
@@ -100,8 +102,11 @@ One module per layer, all placed from the location's data — never hard-coded w
   repos show the pattern: an arcade wall with arches, a castle C-fold, a terrace with a fountain.
 - **Vegetation** — one die-cut silhouette per species, prints shared across the planting
   (`H.printed`), placed along real ways (an allée on a named road) and inside land polygons.
-- **City fabric** — far blocks printed on the page (map.js does this from the buildings layer);
-  the near wall as long block-front cards with stepped rooflines.
+- **No generic building cards** — the default is none. Extruding raw `building=*` footprints reads
+  as crude boxes or floating triangles; the Mont Saint-Michel test learned this the hard way and
+  dropped its whole buildings layer. Famous buildings and sites get the floating tag + story
+  instead. Building cards are only for authored city fabric — long block fronts with stepped
+  rooflines facing the lens (the NYC pattern) — never one card per footprint.
 - **Sites** — the floating name tags + story panels already ship in `world/sites.js`: fill
   `STORIES` with the place's own lines, and the chart hexagons follow.
 - **The player** — out of the box the world is walked by a calico cat (world/cat.js): one
@@ -179,3 +184,4 @@ three.js (MIT). Attribution: the page credits OSM (ODbL) and any other data sour
 |---|---|---|
 | `~/dev/private/paper-worlds-demo/westlake` | classical garden, water-centred, 1:4 scale | garden vegetation, a raised landmark assembly, the stele/sign pattern |
 | `~/dev/private/paper-worlds-demo/nyc` | modern city, grid + buildings, 1:2 scale | city fabric + skyline cards, story tags, the NYC extraction notes |
+| `~/dev/private/paper-worlds-demo/MtStMichel` | coastal island, causeway, 1:1 | the coastal pipeline (tidal flats, synthetic sea), tags-only famous sites — no building cards |
