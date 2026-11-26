@@ -33,6 +33,7 @@ import { loadLocation, locationId, HERO } from './world/locations.js';
 import { buildMap } from './world/map.js';
 import { settleSites, buildSiteTags, showStory, closeStory } from './world/sites.js';
 import { createMinimap } from './world/minimap.js';
+import { buildCat } from './world/cat.js';
 import { createMusic } from './world/music.js';
 import { showIntro } from './world/intro.js';
 
@@ -89,6 +90,8 @@ const loadImage = (src) => new Promise((ok) => { const im = new Image(); im.onlo
 const [heroImage, heroBack, heroSide] = await Promise.all([loadImage(HERO_FILE), loadImage(HERO_BACK), loadImage(HERO_SIDE)]);
 
 // the drawn fallback (replace with the place's own person): one flat card that flips to the lens
+// the default player is the calico cat (world/cat.js); a user's own figure ships as the three
+// keyed hero views and takes over automatically
 const drawnMan = () => {
   const D = P2.draw2;
   const art = P2.drawnPiece((gg, ink) => {
@@ -163,8 +166,9 @@ const standee = () => {
 };
 const placeHero = (x, z) => {
   const rig = heroImage ? standee() : null;
-  const hero = popup(null, null, { node: rig ? rig.node : drawnMan(), height: 2.9, x, z, sway: 0.15, scale: HERO.scale, order: 0 });
-  H.setHero(hero, { turn: rig ? 'yaw' : 'flip' });
+  const cat = rig ? null : buildCat(H, null);
+  const hero = popup(null, null, { node: rig ? rig.node : cat.node, height: rig ? 2.9 : 1.15, x, z, sway: 0.15, scale: rig ? HERO.scale : 1, order: 0 });
+  H.setHero(hero, { turn: 'yaw', stride: rig ? null : cat.stride });
   if (rig && rig.sideCard) {
     H.onStep(() => {
       const vy = H.view.yaw * Math.PI / 180;

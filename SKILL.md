@@ -95,9 +95,12 @@ One module per layer, all placed from the location's data — never hard-coded w
   the near wall as long block-front cards with stepped rooflines.
 - **Sites** — the floating name tags + story panels already ship in `world/sites.js`: fill
   `STORIES` with the place's own lines, and the chart hexagons follow.
-- **The hero** — three keyed views at `assets/hero*.png` (`scripts/hero-image.py`,
-  `scripts/hero-views.py`; the generation prompt is in the demo repos' `assets/README.md`), else
-  the drawn fallback in `scene.js` (replace its clothes with the place's own).
+- **The player** — out of the box the world ships with the drawn calico cat (world/cat.js): a
+  side-view card with a two-pose trot (the papertrails manner) and a companion mode
+  (`followCat`) that trails the hero a step behind. A painted cat drops in from a generated
+  three-pose sheet (`scripts/cat-views.py`; prompt in `references/hero-art.md`), and a user's own
+  figure from the three keyed hero views (`scripts/hero-image.py`, `hero-views.py`) takes over
+  automatically.
 - **Copy and music** — `world/intro.js` (English UI unless asked otherwise) and `world/music.js`
   (a generative score; `scripts/music-sample.py` renders a WAV for the user to hear before
   committing — always play the sample first when changing the score).
