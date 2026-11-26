@@ -41,6 +41,8 @@ LAND_KINDS = [
     ("landuse", "grass", "lawn"), ("landuse", "meadow", "lawn"),
     ("landuse", "recreation_ground", "lawn"), ("natural", "grassland", "lawn"),
     ("landuse", "village_green", "lawn"),
+    ("natural", "sand", "sand"), ("natural", "beach", "sand"),
+    ("natural", "coastline", "coast"),
     ("leisure", "park", "park"), ("leisure", "garden", "park"),
     ("leisure", "nature_reserve", "park"),
 ]
@@ -263,6 +265,10 @@ def water_kind(t):
         return None if t.get("water") in ("basin", "fountain", "stream", "ditch", "canal") else "water"
     if t.get("waterway") in ("riverbank",):
         return "water"
+    if t.get("natural") == "wetland":
+        # tidal flats and saltmarsh read as the sea in a diorama; an inland fen/bog site may
+        # prefer land — flip this line for that site
+        return "water"
     return None
 
 
@@ -304,6 +310,18 @@ def main():
         kinds[pg["kind"]] = kinds.get(pg["kind"], 0) + 1
     print("  land kinds:", dict(sorted(kinds.items(), key=lambda kv: -kv[1])))
 
+    # a coastal site: no water polygons, but coastlines — the sea is the page minus its land.
+    # Top-level land rings only: a ring inside another (grass on the island) is already dry land.
+    if not water and any(pg.get("kind") == "coast" for pg in land):
+        def contained(inner, outer):
+            return any(in_ring(inner[0][0], inner[0][1], o["outer"]) for o in land if o is not outer)
+        holes = [pg["outer"] for pg in land if pg.get("kind") == "coast" or not contained(pg["outer"], pg)]
+        rect = [[page[0], page[2]], [page[1], page[2]], [page[1], page[3]], [page[0], page[3]]]
+        water.append({"outer": [[round(x, 1), round(y, 1)] for x, y in rect],
+                      "holes": [[[round(x, 1), round(y, 1)] for x, y in h] for h in holes],
+                      "name": "the sea"})
+        print(f"coastal site: the sea is the page minus {len(holes)} land rings")
+
     # the provisional start: dry land or the nearest dry point
     sx = (spec["start"]["lon"] - crs["lon0"]) * kx
     sy = (spec["start"]["lat"] - crs["lat0"]) * ky
@@ -328,6 +346,7 @@ def main():
                   "note": f"settled {moved:.0f} m" if moved else "dry as surveyed"},
         "water": water,
         "land": land,
+        "sites": spec.get("sites", []),      # the landmark names the site extractor picks from
     }
     with open(args.out, "w") as f:
         json.dump(out, f, separators=(",", ":"))

@@ -236,8 +236,10 @@ rsync -a index.html scene.js harness.js papercraft/ vendor/ world/ assets/ dist/
 # 2. verify the staged folder on a local server (do not skip)
 python3 -m http.server 8768 --bind 127.0.0.1 --directory dist
 
-# 3. publish (foreground; auto-claim with the configured api-key)
-AI_AGENT=claude aweshell-cli file-hosting ./dist --entry-file index.html --format json
+# 3. publish (foreground; auto-claim with the configured api-key) — the folder name names the archive
+cp -R dist paper-<city>
+AI_AGENT=claude aweshell-cli file-hosting ./paper-<city> --entry-file index.html --format json
+rm -rf paper-<city>
 
 # 4. smoke-test the public URL headlessly
 # 5. bind the custom domain in the HSK console (CLI cannot)

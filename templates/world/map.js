@@ -158,8 +158,8 @@ function mottle(g, loc, P, ppu, x0, z0, w, h) {
 function paintLand(g, loc, P, ppu, rect) {
   const col = loc.landCols;
   if (!col) return;
-  const order = ['park', 'wood', 'lawn', 'rock'];
-  const alpha = { park: 0.82, wood: 0.8, lawn: 0.78, rock: 0.85 };
+  const order = ['park', 'coast', 'wood', 'lawn', 'rock', 'sand'];
+  const alpha = { park: 0.82, coast: 0.85, wood: 0.8, lawn: 0.78, rock: 0.85, sand: 0.85 };
   for (const kind of order) {
     for (const pg of loc.land) {
       if (pg.kind !== kind) continue;

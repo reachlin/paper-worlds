@@ -68,8 +68,9 @@ def main():
     lon0, lat0 = crs["lon0"], crs["lat0"]
     kx, ky = crs["mPerDegLon"], crs["mPerDegLat"]
 
+    listed = loc.get("sites") or []
     SITES = [n.strip() for n in (args.names or "").split(",") if n.strip()] \
-        or [s.get("name") for s in loc.get("sites") or []] \
+        or [s if isinstance(s, str) else s.get("name") for s in listed if s] \
         or [s.get("name") for s in loc.get("labels") or []]
     if not SITES:
         raise SystemExit("no site names: pass --names or put a \"sites\" list in the spec")

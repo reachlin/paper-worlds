@@ -17,7 +17,7 @@ hinges, light and lens. This skill adds the layer that makes it about *real geog
 pipeline that turns OSM + open-data downloads into a walkable map, a location-agnostic world, and
 a repeatable QA/deploy flow. Two worlds prove the pattern, one in each register:
 
-- **Paper West Lake** (classical garden): `~/dev/private/paper-westlake` — the reference implementation
+- **Paper West Lake** (classical garden): `~/dev/private/paper-worlds-demo/westlake` — the reference implementation
 - **Paper Central Park** (modern city): `~/dev/private/paper-worlds-demo/nyc` — the second proof, with buildings,
   a skyline wall, floating name tags and story panels
 
@@ -54,6 +54,15 @@ subdirectory: source URL, download date, licence. Palette reference images go in
 never in the published site.
 
 Gate: every layer has raw JSON + source note + timestamp.
+
+### Phase 2b — coastal sites (islands, bays, sea edges)
+
+The sea is usually NOT mapped as water polygons: it is tidal flats (`natural=wetland`) and
+coastline lines. The pipeline handles both: wetlands join the water layer, closed coastline rings
+join the land layer (`kind: coast`), and when a site has coastlines but no water polygons,
+extract_osm.py makes the sea itself — the whole page with the top-level land rings as holes, so
+the island walks and everything else blocks. The mainland behind an open coastline line stays sea
+in v1; acceptable at the page edge.
 
 ### Phase 3 — extract (raw → map JSON)
 
@@ -131,8 +140,13 @@ Smoke-test `dist/` locally, then publish. For aweshell static hosting (the demo 
 
 ```bash
 aweshell-cli context wizard --format json   # task_goal=share_file, sensitivity: judge the content
-aweshell-cli file-hosting ./<folder> --entry-file index.html --format json --context ...
+cp -R dist paper-<city>                     # the upload folder names the archive
+aweshell-cli file-hosting ./paper-<city> --entry-file index.html --format json --context ...
 ```
+
+Name every publish after its city (`paper-westlake.zip`, `paper-nyc.zip`): a directory upload's
+archive takes the folder's name, so a bare `dist/` upload becomes `dist.zip`, indistinguishable
+across worlds. Keep the staged copy out of git (`paper-*/` in `.gitignore`).
 
 **No in-place update** — every publish is a new resource + URL; a bound custom domain must be
 rebound in the HSK console (takes 5–10 min). Smoke-test the public URL headlessly. Keep the OSM
@@ -163,5 +177,5 @@ three.js (MIT). Attribution: the page credits OSM (ODbL) and any other data sour
 
 | repo | register | what to copy from it |
 |---|---|---|
-| `~/dev/private/paper-westlake` | classical garden, water-centred, 1:4 scale | garden vegetation, a raised landmark assembly, the stele/sign pattern |
+| `~/dev/private/paper-worlds-demo/westlake` | classical garden, water-centred, 1:4 scale | garden vegetation, a raised landmark assembly, the stele/sign pattern |
 | `~/dev/private/paper-worlds-demo/nyc` | modern city, grid + buildings, 1:2 scale | city fabric + skyline cards, story tags, the NYC extraction notes |

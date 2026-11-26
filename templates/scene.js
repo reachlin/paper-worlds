@@ -87,7 +87,8 @@ const HERO_BACK = './assets/hero-back.png';
 const HERO_SIDE = './assets/hero-side.png';
 const HERO_W = HERO.width, HERO_H = HERO.height;
 const loadImage = (src) => new Promise((ok) => { const im = new Image(); im.onload = () => ok(im); im.onerror = () => ok(null); im.src = src; });
-const [heroImage, heroBack, heroSide] = await Promise.all([loadImage(HERO_FILE), loadImage(HERO_BACK), loadImage(HERO_SIDE)]);
+const [heroImage, heroBack, heroSide] = (await Promise.all([loadImage(HERO_FILE), loadImage(HERO_BACK), loadImage(HERO_SIDE)]))
+  .map((im) => (im && im.width > 4 ? im : null));   // the shipped 1x1 placeholders mean "no art"
 // the default player's frames (papertrails' cat_calico, MIT — see assets/cat-README.md);
 // without them the drawn cat stands in
 const [catStand, catWalkA, catWalkB] = await Promise.all([

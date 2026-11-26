@@ -1,6 +1,6 @@
 # The framework
 
-This is the part of `paper-westlake` worth carrying to another city. It is a set of **contracts**, not
+This is the part of `paper-worlds-demo/westlake` worth carrying to another city. It is a set of **contracts**, not
 a code dump: any map that honours them can use the same world assembly, QA harness and deploy step,
 while its art, data and palette stay entirely its own.
 

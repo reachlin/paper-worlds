@@ -56,8 +56,9 @@ def overpass_query(bbox, layer, poi_regex=None):
   relation["leisure"="park"]({b});
   way["landuse"~"grass|forest|meadow|recreation_ground"]({b});
   relation["landuse"~"grass|forest|meadow|recreation_ground"]({b});
-  way["natural"~"wood|scrub|grassland"]({b});
-  relation["natural"~"wood|scrub|grassland"]({b});"""
+  way["natural"~"wood|scrub|grassland|sand|beach"]({b});
+  relation["natural"~"wood|scrub|grassland|sand|beach"]({b});
+  way["natural"="coastline"]({b});"""
         return f"[out:json][timeout:180];({body}\n);out geom;"
     if layer == "roads":
         return f'[out:json][timeout:180];way["highway"]({b});out geom;'
@@ -71,7 +72,7 @@ def overpass_query(bbox, layer, poi_regex=None):
     if layer == "sites":
         names = poi_regex or "|".join(CENTRAL_PARK_POIS)
         return (f'[out:json][timeout:120];'
-                f'nwr["name"~"^({names})$"]({b});out tags center;')
+                f'nwr["name"~"({names})"]({b});out tags center;')
     if layer == "buildings":
         # Prefer NYC Open Data for Manhattan footprints. This OSM query is a fallback and can be big.
         body = f"""
